@@ -34,3 +34,10 @@ resource "aws_s3_bucket" "terrabucket" {
     Name = "bucket-terra"
  }
 }
+resource "aws_ecr_repository" "terraecr" {
+  name                 = "ecr-terra"
+  image_tag_mutability = "MUTABLE"
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
