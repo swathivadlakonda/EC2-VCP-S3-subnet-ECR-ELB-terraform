@@ -34,6 +34,7 @@ resource "aws_s3_bucket" "terrabucket" {
     Name = "bucket-terra"
  }
 }
+//ecr-creating script//
 resource "aws_ecr_repository" "terraecr" {
   name                 = "ecr-terra"
   image_tag_mutability = "MUTABLE"
@@ -41,3 +42,24 @@ resource "aws_ecr_repository" "terraecr" {
     scan_on_push = true
   }
 }
+//elb-creating script//
+resource "aws_elb" "bar" {
+  name               = "foobar-terraform-elb"
+  availability_zones = ["us-west-1c", "us-west-1b"]
+  listener {
+    instance_port     = 800
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTP:80/"
+    interval            = 30
+  }
+
+   tags = {
+     Name = "foobar-terraform-elb"
+  }
