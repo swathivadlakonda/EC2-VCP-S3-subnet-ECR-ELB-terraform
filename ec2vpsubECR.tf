@@ -34,7 +34,11 @@ resource "aws_s3_bucket" "terrabucket" {
     Name = "bucket-terra"
  }
 }
+
 //ecr-creating script//
+provider "aws" {
+  region     = "us-west-1"
+}
 resource "aws_ecr_repository" "terraecr" {
   name                 = "ecr-terra"
   image_tag_mutability = "MUTABLE"
@@ -42,12 +46,20 @@ resource "aws_ecr_repository" "terraecr" {
     scan_on_push = true
   }
 }
+
 //elb-creating script//
+provider "aws" {
+  region     = "us-west-1"
+}
+resource "aws_instance" "instance1" {
+  ami           = "ami-0b2d8d1abb76a53d8" # us-west-2
+  instance_type = "t2.micro"
+}
 resource "aws_elb" "bar" {
-  name               = "foobar-terraform-elb"
+  name               = "tera-elb"
   availability_zones = ["us-west-1c", "us-west-1b"]
   listener {
-    instance_port     = 800
+    instance_port     = 80
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
@@ -59,7 +71,12 @@ resource "aws_elb" "bar" {
     target              = "HTTP:80/"
     interval            = 30
   }
-
-   tags = {
-     Name = "foobar-terraform-elb"
+  instances                   = ["${aws_instance.instance1.id}"]
+  cross_zone_load_balancing   = true
+  idle_timeout                = 400
+  connection_draining         = true
+  connection_draining_timeout = 400
+  tags = {
+    Name = "my-elb"
   }
+}
